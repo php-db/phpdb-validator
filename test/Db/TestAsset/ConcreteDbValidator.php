@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace LaminasTest\Db\Validator\TestAsset;
+namespace PhpDbTest\Validator\TestAsset;
 
-use PhpDb\Validator\AbstractDbValidator;
 use Override;
+use PhpDb\Validator\AbstractDbValidator;
 
 final class ConcreteDbValidator extends AbstractDbValidator
 {

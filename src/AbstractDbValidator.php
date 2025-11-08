@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace PhpDb\Validator;
 
 use Closure;
+use Laminas\Translator\TranslatorInterface;
+use Laminas\Validator\AbstractValidator;
+use Laminas\Validator\Exception;
+use Laminas\Validator\Exception\InvalidArgumentException;
+use Laminas\Validator\Exception\RuntimeException;
 use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\AdapterAwareInterface;
 use PhpDb\Adapter\AdapterAwareTrait;
@@ -15,11 +20,6 @@ use PhpDb\Sql\Select;
 use PhpDb\Sql\Sql;
 use PhpDb\Sql\TableIdentifier;
 use PhpDb\Sql\Where;
-use Laminas\Translator\TranslatorInterface;
-use Laminas\Validator\AbstractValidator;
-use Laminas\Validator\Exception;
-use Laminas\Validator\Exception\InvalidArgumentException;
-use Laminas\Validator\Exception\RuntimeException;
 
 use function is_array;
 use function is_scalar;

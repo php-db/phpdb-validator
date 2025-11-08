@@ -33,7 +33,7 @@
     },
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
-        "php-db/phpdb": "^0.2.1",
+        "php-db/phpdb": "^0.3.0",
         "laminas/laminas-servicemanager": "^4.1.0",
         "laminas/laminas-validator": "^3.0.0",
         "laminas/laminas-translator": "^1.0",

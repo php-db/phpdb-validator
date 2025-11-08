@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace LaminasTest\Db\Validator;
+namespace PhpDbTest\Validator;
 
+use Laminas\Validator\Exception\InvalidArgumentException;
+use LaminasTest\Db\Validator\TestAsset\ConcreteDbValidator;
+use Override;
 use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\Driver\ConnectionInterface;
 use PhpDb\Adapter\Driver\DriverInterface;
 use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Validator\AbstractDbValidator;
-use Laminas\Validator\Exception\InvalidArgumentException;
-use LaminasTest\Db\Validator\TestAsset\ConcreteDbValidator;
-use Override;
 use PHPUnit\Framework\TestCase;
 
 /**

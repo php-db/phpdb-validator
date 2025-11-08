@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace LaminasTest\Db\Validator;
+namespace PhpDbTest\Validator;
 
 use ArrayObject;
+use Laminas\Validator\Exception\InvalidArgumentException;
 use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\Driver\ConnectionInterface;
 use PhpDb\Adapter\Driver\DriverInterface;
@@ -12,14 +13,13 @@ use PhpDb\Adapter\Driver\ResultInterface;
 use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Validator\NoRecordExists;
-use Laminas\Validator\Exception\InvalidArgumentException;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use TypeError;
 
 /**
- * @group      Laminas_Validator
+ * @group      PhpDb_Validator
  */
 final class NoRecordExistsTest extends TestCase
 {
@@ -114,7 +114,8 @@ final class NoRecordExistsTest extends TestCase
     public function testNoRecordExistsConstructorArray(): void
     {
         $this->expectException(TypeError::class);
-        /** @psalm-suppress InvalidArgument */
+        /** @noinspection PhpParamsInspection */
+        // @phpstan-ignore argument.type
         new NoRecordExists('users');
     }
 
@@ -247,7 +248,8 @@ final class NoRecordExistsTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Adapter option missing.');
-        /** @psalm-suppress InvalidArgument */
+        /** @noinspection PhpMissingArrayKeyInspection */
+        /** @phpstan-ignore argument.type */
         $validator = new NoRecordExists([
             'table'   => 'users',
             'field'   => 'users',
@@ -304,7 +306,7 @@ final class NoRecordExistsTest extends TestCase
 
         $reflectedClass     = new ReflectionClass($validator);
         $reflectionProperty = $reflectedClass->getProperty('messageTemplates');
-        /** @psalm-suppress UnusedMethodCall */
+        /** @noinspection PhpExpressionResultUnusedInspection */
         $reflectionProperty->setAccessible(true);
 
         $messageTemplates = [
