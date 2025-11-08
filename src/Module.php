@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Laminas\Db\Validator;
+namespace PhpDb\Validator;
 
 use Laminas\ServiceManager\Factory\InvokableFactory;
 

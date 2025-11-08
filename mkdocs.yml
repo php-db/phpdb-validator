@@ -10,7 +10,7 @@ repo_url: 'https://github.com/axleus/laminas-db-validator'
 extra:
     project: Components
     installation:
-        module_class: 'Laminas\Db\Validator\Module'
+        module_class: 'PhpDb\Validator\Module'
     current_version: v3
     versions:
       - v3

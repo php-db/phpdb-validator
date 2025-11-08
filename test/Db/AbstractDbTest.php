@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace LaminasTest\Db\Validator;
 
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\Adapter\Driver\ConnectionInterface;
-use Laminas\Db\Adapter\Driver\DriverInterface;
-use Laminas\Db\Adapter\Driver\StatementInterface;
-use Laminas\Db\Adapter\ParameterContainer;
-use Laminas\Db\Validator\AbstractDbValidator;
+use PhpDb\Adapter\Adapter;
+use PhpDb\Adapter\Driver\ConnectionInterface;
+use PhpDb\Adapter\Driver\DriverInterface;
+use PhpDb\Adapter\Driver\StatementInterface;
+use PhpDb\Adapter\ParameterContainer;
+use PhpDb\Validator\AbstractDbValidator;
 use Laminas\Validator\Exception\InvalidArgumentException;
 use LaminasTest\Db\Validator\TestAsset\ConcreteDbValidator;
 use Override;

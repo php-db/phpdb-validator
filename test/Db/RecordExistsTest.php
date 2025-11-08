@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace LaminasTest\Db\Validator;
 
 use ArrayObject;
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\Adapter\Driver\ConnectionInterface;
-use Laminas\Db\Adapter\Driver\DriverInterface;
-use Laminas\Db\Adapter\Driver\ResultInterface;
-use Laminas\Db\Adapter\Driver\StatementInterface;
-use Laminas\Db\Adapter\ParameterContainer;
-use Laminas\Db\Adapter\Platform\PlatformInterface;
-use Laminas\Db\Sql\Select;
-use Laminas\Db\Sql\Sql;
-use Laminas\Db\Sql\TableIdentifier;
-use Laminas\Db\Validator\RecordExists;
+use PhpDb\Adapter\Adapter;
+use PhpDb\Adapter\Driver\ConnectionInterface;
+use PhpDb\Adapter\Driver\DriverInterface;
+use PhpDb\Adapter\Driver\ResultInterface;
+use PhpDb\Adapter\Driver\StatementInterface;
+use PhpDb\Adapter\ParameterContainer;
+use PhpDb\Adapter\Platform\PlatformInterface;
+use PhpDb\Sql\Select;
+use PhpDb\Sql\Sql;
+use PhpDb\Sql\TableIdentifier;
+use PhpDb\Validator\RecordExists;
 use Laminas\Validator\Exception\InvalidArgumentException;
 use LaminasTest\Db\Validator\TestAsset\TrustingSql92Platform;
 use PHPUnit\Framework\MockObject\Exception;
@@ -365,7 +365,7 @@ final class RecordExistsTest extends TestCase
     }
 
     /**
-     * @testdox Laminas\Db\Validator\RecordExists::getSelect
+     * @testdox PhpDb\Validator\RecordExists::getSelect
      * @throws Exception
      * @throws Exception
      */
@@ -398,7 +398,7 @@ final class RecordExistsTest extends TestCase
     }
 
     /**
-     * @cover Laminas\Db\Validator\RecordExists::getSelect
+     * @cover PhpDb\Validator\RecordExists::getSelect
      * @group Laminas-4521
      * @throws Exception
      */
