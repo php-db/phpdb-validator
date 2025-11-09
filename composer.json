@@ -18,7 +18,7 @@
     "config": {
         "sort-packages": true,
         "platform": {
-            "php": "8.1.99"
+            "php": "8.2.99"
         },
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
@@ -32,18 +32,18 @@
         }
     },
     "require": {
-        "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
+        "php-db/phpdb": "^0.3.0",
         "laminas/laminas-servicemanager": "^4.1.0",
         "laminas/laminas-validator": "^3.0.0",
         "laminas/laminas-translator": "^1.0",
         "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "laminas/laminas-db": "^2.20",
         "laminas/laminas-coding-standard": "^3.0.1",
         "phpunit/phpunit": "^10.5.0",
-        "psalm/plugin-phpunit": "^0.19.0",
-        "vimeo/psalm": "^6.0.0"
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0"
     },
     "suggest": {
         "laminas/laminas-i18n": "Laminas\\I18n component to allow translation of validation error messages",
@@ -52,34 +52,28 @@
     },
     "autoload": {
         "psr-4": {
-            "Laminas\\Db\\Validator\\": "src/"
+            "PhpDb\\Validator\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LaminasTest\\Db\\Validator\\": "test/Db"
+            "PhpDbTest\\Validator\\": "test/Db"
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../laminas-db",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "scripts": {
         "check": [
             "@cs-check",
-            "@test"
+            "@static-analysis",
+            "@test",
+            "@test-integration"
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always --testsuite \"unit test\"",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
         "test-integration": "phpunit --colors=always --testsuite \"integration test\"",
-        "static-analysis": "psalm --shepherd --stats",
+        "static-analysis": "vendor/bin/phpstan analyse --memory-limit=256M",
+        "sa-generate-baseline": "vendor/bin/phpstan analyse --memory-limit=256M --generate-baseline",
         "upload-coverage": "coveralls -v"
     }
 }

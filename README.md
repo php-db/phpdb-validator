@@ -1,4 +1,4 @@
-# laminas-db-validator
+# phpdb-validator
 
 > ## 🇷🇺 Русским гражданам
 >
@@ -18,15 +18,15 @@
 
 This library provides db-related validators for [laminas/laminas-validator](https://docs.laminas.dev/laminas-validator):
 
-- `Laminas\Db\Validator\Db\RecordExists`
-- `Laminas\Db\Validator\Db\NoRecordExists`
+- `Php\Db\Validator\Db\RecordExists`
+- `PhpDb\Validator\Db\NoRecordExists`
 
 ## Installation
 
 Run the following to install this library:
 
 ```bash
-$ composer require axleus/laminas-db-validator
+$ composer require php-db/phpdb-validator
 ```
 
 ## Documentation

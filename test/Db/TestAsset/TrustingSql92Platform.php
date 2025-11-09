@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace LaminasTest\Db\Validator\TestAsset;
+namespace PhpDbTest\Validator\TestAsset;
 
-use Laminas\Db\Adapter\Platform\Sql92;
 use Override;
+use PhpDb\Adapter\Platform\Sql92;
 
 final class TrustingSql92Platform extends Sql92
 {

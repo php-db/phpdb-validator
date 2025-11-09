@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Laminas\Db\Validator;
+namespace PhpDb\Validator;
 
 use Closure;
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\Adapter\AdapterAwareInterface;
-use Laminas\Db\Adapter\AdapterAwareTrait;
-use Laminas\Db\Adapter\AdapterInterface;
-use Laminas\Db\Adapter\Driver\StatementInterface;
-use Laminas\Db\Sql\Predicate\PredicateInterface;
-use Laminas\Db\Sql\Select;
-use Laminas\Db\Sql\Sql;
-use Laminas\Db\Sql\TableIdentifier;
-use Laminas\Db\Sql\Where;
 use Laminas\Translator\TranslatorInterface;
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
 use Laminas\Validator\Exception\InvalidArgumentException;
 use Laminas\Validator\Exception\RuntimeException;
+use PhpDb\Adapter\Adapter;
+use PhpDb\Adapter\AdapterAwareInterface;
+use PhpDb\Adapter\AdapterAwareTrait;
+use PhpDb\Adapter\AdapterInterface;
+use PhpDb\Adapter\Driver\StatementInterface;
+use PhpDb\Sql\Predicate\PredicateInterface;
+use PhpDb\Sql\Select;
+use PhpDb\Sql\Sql;
+use PhpDb\Sql\TableIdentifier;
+use PhpDb\Sql\Where;
 
 use function is_array;
 use function is_scalar;

@@ -1,13 +1,13 @@
 # Db\\RecordExists and Db\\NoRecordExists Validators
 
-`Laminas\Db\Validator\RecordExists` and `Laminas\Db\Validator\NoRecordExists` provide
+`PhpDb\Validator\RecordExists` and `PhpDb\Validator\NoRecordExists` provide
 a means to test whether a record exists in a given table of a database, with a
 given value.
 
 <!-- markdownlint-disable-next-line MD001 -->
 > ### Installation requirements
 >
-> `Laminas\Db\Validator\NoRecordExists` and `Laminas\Db\Validator\RecordExists`
+> `PhpDb\Validator\NoRecordExists` and `PhpDb\Validator\RecordExists`
 > depends on the laminas-db component, so be sure to have it installed before
 > getting started:
 >
@@ -17,10 +17,10 @@ given value.
 
 ## Supported options
 
-The following options are supported for `Laminas\Db\Validator\NoRecordExists` and
-`Laminas\Db\Validator\RecordExists`:
+The following options are supported for `PhpDb\Validator\NoRecordExists` and
+`PhpDb\Validator\RecordExists`:
 
-- `adapter`: A database adapter implementing `Laminas\Db\Adapter\AdapterInterface` that will be used for the search. Required but not immediately within the constructor
+- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be used for the search. Required but not immediately within the constructor
 - `exclude`: Sets records that will be excluded from the search.
 - `field`: The database field within this table that will be searched for the record.
 - `schema`: Sets the schema that will be used for the search.
@@ -33,7 +33,7 @@ An example of basic usage of the validators:
 
 ```php
 // Check that the email address exists in the database
-$validator = new Laminas\Db\Validator\RecordExists([
+$validator = new PhpDb\Validator\RecordExists([
     'table'   => 'users',
     'field'   => 'emailaddress',
     'adapter' => $dbAdapter,
@@ -55,7 +55,7 @@ then an error message is displayed.
 
 ```php
 // Check that the username is not present in the database
-$validator = new Laminas\Db\Validator\NoRecordExists([
+$validator = new PhpDb\Validator\NoRecordExists([
     'table'   => 'users',
     'field'   => 'username',
     'adapter' => $dbAdapter,
@@ -78,7 +78,7 @@ then an error message is displayed.
 
 ## Excluding records
 
-`Laminas\Db\Validator\RecordExists` and `Laminas\Db\Validator\NoRecordExists` also
+`PhpDb\Validator\RecordExists` and `PhpDb\Validator\NoRecordExists` also
 provide a means to test the database, excluding a part of the table, either by
 providing a `WHERE` clause as a string, or an array with the keys `field` and
 `value`.
@@ -90,7 +90,7 @@ example on a user profile form)
 ```php
 // Check no other users have the username
 $user_id   = $user->getId();
-$validator = new Laminas\Db\Validator\NoRecordExists([
+$validator = new PhpDb\Validator\NoRecordExists([
     'table' => 'users',
     'field' => 'username',
     'adapter' => $dbAdapter,
@@ -120,7 +120,7 @@ other than `!=`. This can be useful for testing against composite keys.
 ```php
 $email     = 'user@example.com';
 $clause    = $dbAdapter->quoteIdentifier('email') . ' = ' . $dbAdapter->quoteValue($email);
-$validator = new Laminas\Db\Validator\RecordExists([
+$validator = new PhpDb\Validator\RecordExists([
     'table'   => 'users',
     'field'   => 'username',
     'adapter' => $dbAdapter,
@@ -148,7 +148,7 @@ and DB/2 by supplying an array with `table` and `schema` keys, as demonstrated
 below:
 
 ```php
-$validator = new Laminas\Db\Validator\RecordExists([
+$validator = new PhpDb\Validator\RecordExists([
     'table'  => 'users',
     'schema' => 'my',
     'field'  => 'id',
@@ -158,14 +158,14 @@ $validator = new Laminas\Db\Validator\RecordExists([
 
 ## Using a Select object
 
-It is also possible to supply the validators with a `Laminas\Db\Sql\Select` object
+It is also possible to supply the validators with a `PhpDb\Sql\Select` object
 in place of options. The validator then uses this object instead of building its
 own. This allows for greater flexibility with selection of records used for
 validation.
 
 ```php
-use Laminas\Db\Sql\Select;
-use Laminas\Db\Validator\RecordExists;
+use PhpDb\Sql\Select;
+use PhpDb\Validator\RecordExists;
 
 $select = new Select();
 $select
