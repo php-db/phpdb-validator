@@ -8,11 +8,12 @@ given value.
 > ### Installation requirements
 >
 > `PhpDb\Validator\NoRecordExists` and `PhpDb\Validator\RecordExists`
-> depends on the laminas-db component, so be sure to have it installed before
-> getting started:
+> depends on the core PhpDb component, so be sure to have it installed before
+> getting started by installing your adapter:
 >
 > ```bash
-> $ composer require axleus/laminas-db
+> // E.g. MySQL
+> $ composer require php-db/phpdb-adapter-mysql
 > ```
 
 ## Supported options
@@ -20,7 +21,8 @@ given value.
 The following options are supported for `PhpDb\Validator\NoRecordExists` and
 `PhpDb\Validator\RecordExists`:
 
-- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be used for the search. Required but not immediately within the constructor
+- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be 
+  used for the search. Required but not immediately within the constructor
 - `exclude`: Sets records that will be excluded from the search.
 - `field`: The database field within this table that will be searched for the record.
 - `schema`: Sets the schema that will be used for the search.
@@ -32,6 +34,9 @@ The following options are supported for `PhpDb\Validator\NoRecordExists` and
 An example of basic usage of the validators:
 
 ```php
+// Assuming $dbAdapter is configured via your framework's DI container or through
+// a new instance
+
 // Check that the email address exists in the database
 $validator = new PhpDb\Validator\RecordExists([
     'table'   => 'users',
