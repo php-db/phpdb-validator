@@ -1,4 +1,4 @@
-# Db\\RecordExists and Db\\NoRecordExists Validators
+# RecordExists and NoRecordExists Validators
 
 `PhpDb\Validator\RecordExists` and `PhpDb\Validator\NoRecordExists` provide
 a means to test whether a record exists in a given table of a database, with a

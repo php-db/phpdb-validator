@@ -1,16 +1,16 @@
 docs_dir: docs/book
 site_dir: docs/html
 nav:
-    - Home: v3/index.md
-    - v3:
-      - "RecordExists/NoRecordExists": v3/exists.md
-site_name: 'laminas-db-validator'
-site_description: 'laminas-db validators for laminas-validator'
-repo_url: 'https://github.com/axleus/laminas-db-validator'
+    - Home: v1/index.md
+    - v1:
+      - "RecordExists/NoRecordExists": v1/exists.md
+site_name: 'phpdb-validator'
+site_description: 'phpdb validators for laminas-validator'
+repo_url: 'https://github.com/php-db/phpdb-validator'
 extra:
     project: Components
     installation:
         module_class: 'PhpDb\Validator\Module'
-    current_version: v3
+    current_version: v1
     versions:
-      - v3
+      - v1
