@@ -1,9 +1,14 @@
 name: CI
 
 on:
-  push:
-    branches: [refactor, 0.1.x]
   pull_request:
+  push:
+    branches:
+    tags:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   tests:
@@ -58,10 +63,13 @@ jobs:
         run: composer test
 
   qa:
-    name: "Static analysis & coding standards"
+    name: "Standards, analysis & docs"
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 pulls tags and history so the BC check has a baseline.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -86,3 +94,23 @@ jobs:
 
       - name: Static analysis
         run: composer static-analysis
+
+      - name: Markdown lint
+        run: npx --yes markdownlint-cli2@0.23.0 "docs/**/*.md" "README.md"
+
+      - name: Documentation build
+        run: |
+          pip install --quiet mkdocs
+          mkdocs build --strict
+
+      # Compares the public API against the most recent release tag. No-op until
+      # the first tag exists; installed globally to avoid clashing with the
+      # package's own dependencies.
+      - name: Backward compatibility check
+        run: |
+          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+            composer global require --no-interaction roave/backward-compatibility-check
+            "$(composer global config home)/vendor/bin/roave-backward-compatibility-check"
+          else
+            echo "No release tag yet — skipping BC check until the first tagged release."
+          fi

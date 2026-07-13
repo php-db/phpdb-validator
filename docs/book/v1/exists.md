@@ -21,7 +21,7 @@ given value.
 The following options are supported for `PhpDb\Validator\NoRecordExists` and
 `PhpDb\Validator\RecordExists`:
 
-- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be 
+- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be
   used for the search. Required but not immediately within the constructor
 - `exclude`: Sets records that will be excluded from the search.
 - `field`: The database field within this table that will be searched for the record.
