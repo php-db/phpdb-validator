@@ -13,8 +13,8 @@ final class TrustingSql92Platform extends Sql92
      * {@inheritDoc}
      */
     #[Override]
-    public function quoteValue($value): string
+    public function quoteValue(string $value): string
     {
-        return $this->quoteTrustedValue($value);
+        return (string) $this->quoteTrustedValue($value);
     }
 }

@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-namespace PhpDbTest\Validator;
+namespace PhpDbTest\Validator\Unit;
 
 use Laminas\Validator\Exception\InvalidArgumentException;
 use Override;
 use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\Driver\ConnectionInterface;
 use PhpDb\Adapter\Driver\DriverInterface;
+use PhpDb\Adapter\Driver\ResultInterface;
 use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
+use PhpDb\Adapter\Platform\Sql92;
 use PhpDb\Validator\AbstractDbValidator;
 use PhpDbTest\Validator\TestAsset\ConcreteDbValidator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group      Laminas_Validator
- */
+#[Group('unit')]
 final class AbstractDbTest extends TestCase
 {
     protected Adapter $adapter;
@@ -28,10 +29,15 @@ final class AbstractDbTest extends TestCase
     {
         $mockConnection = $this->createMock(ConnectionInterface::class);
 
+        $mockResult = $this->createMock(ResultInterface::class);
+        $mockResult
+            ->method('current')
+            ->willReturn(null);
+
         $mockStatement = $this->createMock(StatementInterface::class);
         $mockStatement
             ->method('execute')
-            ->willReturn([]);
+            ->willReturn($mockResult);
 
         $mockStatement
             ->method('getParameterContainer')
@@ -45,10 +51,7 @@ final class AbstractDbTest extends TestCase
             ->method('getConnection')
             ->willReturn($mockConnection);
 
-        $this->adapter = $this->getMockBuilder(Adapter::class)
-            ->setConstructorArgs([$mockDriver])
-            ->onlyMethods([])
-            ->getMock();
+        $this->adapter = new Adapter($mockDriver, new Sql92());
 
         $this->validator = new ConcreteDbValidator([
             'adapter' => $this->adapter,
@@ -88,7 +91,7 @@ final class AbstractDbTest extends TestCase
             'schema'  => $schema,
         ]);
 
-        $this->assertEquals($schema, $this->validator->getSchema());
+        static::assertEquals($schema, $this->validator->getSchema());
     }
 
     public function testGetTable(): void
@@ -100,7 +103,7 @@ final class AbstractDbTest extends TestCase
             'table'   => $table,
         ]);
 
-        $this->assertEquals($table, $this->validator->getTable());
+        static::assertEquals($table, $this->validator->getTable());
     }
 
     public function testGetField(): void
@@ -112,7 +115,7 @@ final class AbstractDbTest extends TestCase
             'field'   => $field,
         ]);
 
-        $this->assertEquals($field, $this->validator->getField());
+        static::assertEquals($field, $this->validator->getField());
     }
 
     public function testGetExclude(): void
@@ -125,7 +128,7 @@ final class AbstractDbTest extends TestCase
             'exclude' => $exclude,
         ]);
 
-        $this->assertEquals($exclude, $this->validator->getExclude());
+        static::assertEquals($exclude, $this->validator->getExclude());
 
         $exclude         = ['field' => 'foo', 'value' => 'bar'];
         $this->validator = new ConcreteDbValidator([
@@ -135,6 +138,6 @@ final class AbstractDbTest extends TestCase
             'exclude' => $exclude,
         ]);
 
-        $this->assertEquals($exclude, $this->validator->getExclude());
+        static::assertEquals($exclude, $this->validator->getExclude());
     }
 }
