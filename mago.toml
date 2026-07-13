@@ -1,0 +1,50 @@
+#:schema https://mago.carthage.software/1.43.0/schema.json
+version = "1"
+php-version = "8.2.0"
+
+[source]
+workspace = "."
+paths = ["src/", "test/"]
+includes = ["vendor"]
+excludes = []
+
+[source.glob]
+literal-separator = true
+
+[formatter]
+print-width = 120
+tab-width = 4
+use-tabs = false
+
+[linter]
+integrations = ["phpunit"]
+
+[linter.rules]
+ambiguous-function-call = { enabled = false }
+literal-named-argument = { enabled = false }
+halstead = { effort-threshold = 7000 }
+
+[analyzer]
+plugins = []
+find-unused-definitions = true
+find-unused-expressions = true
+analyze-dead-code = false
+memoize-properties = true
+check-throws = true
+unchecked-exceptions = [
+    "Error",
+    "LogicException",
+    "Laminas\\Validator\\Exception\\RuntimeException",
+    "PHPUnit\\Framework\\Exception",
+    "PHPUnit\\Framework\\MockObject\\Exception",
+    "PHPUnit\\Event\\NoPreviousThrowableException",
+]
+unchecked-exception-classes = []
+check-missing-override = true
+find-unused-parameters = false
+strict-list-index-checks = true
+strict-array-index-existence = false
+allow-array-truthy-operand = false
+no-boolean-literal-comparison = false
+check-missing-type-hints = false
+register-super-globals = true
