@@ -4,32 +4,19 @@ declare(strict_types=1);
 
 namespace PhpDb\Validator;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
-
 final class Module
 {
     /**
-     * Return default laminas-db-validator configuration.
+     * Return default phpdb-validator configuration.
      *
      * @return array[]
      */
     public function getConfig(): array
     {
+        $provider = new ConfigProvider();
+
         return [
-            'validators' => [
-                'factories' => [
-                    RecordExists::class   => InvokableFactory::class,
-                    NoRecordExists::class => InvokableFactory::class,
-                ],
-                'aliases'   => [
-                    'dbnorecordexists' => NoRecordExists::class,
-                    'dbNoRecordExists' => NoRecordExists::class,
-                    'DbNoRecordExists' => NoRecordExists::class,
-                    'dbrecordexists'   => RecordExists::class,
-                    'dbRecordExists'   => RecordExists::class,
-                    'DbRecordExists'   => RecordExists::class,
-                ],
-            ],
+            'validators' => $provider->getValidatorConfig(),
         ];
     }
 }

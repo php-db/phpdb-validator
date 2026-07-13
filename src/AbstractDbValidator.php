@@ -9,12 +9,10 @@ use Laminas\Translator\TranslatorInterface;
 use Laminas\Validator\AbstractValidator;
 use Laminas\Validator\Exception;
 use Laminas\Validator\Exception\InvalidArgumentException;
-use Laminas\Validator\Exception\RuntimeException;
 use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\AdapterAwareInterface;
 use PhpDb\Adapter\AdapterAwareTrait;
 use PhpDb\Adapter\AdapterInterface;
-use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Sql\Predicate\PredicateInterface;
 use PhpDb\Sql\Select;
 use PhpDb\Sql\Sql;
@@ -28,12 +26,12 @@ use function is_scalar;
  * Class for Database record validation
  *
  * @psalm-type OptionsArgument = array{
- * adapter: Adapter,
+ * adapter?: Adapter,
  * select?: string|array|Select,
  * table?: string,
  * schema?: string,
  * field?: string,
- * exclude?: array|Closure|PredicateInterface|Where|string,
+ * exclude?: array{field: string, value: scalar}|Closure|PredicateInterface|Where|string,
  * messages?: array<string, string>,
  * translator?: TranslatorInterface|null,
  * translatorTextDomain?: string|null,
@@ -68,6 +66,7 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
 
     protected string $field;
 
+    /** @var array{field: string, value: scalar}|Closure|PredicateInterface|Where|string|null */
     protected array|Closure|PredicateInterface|Where|string|null $exclude;
 
     /**
@@ -124,16 +123,16 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
 
     /**
      * Returns the set adapter
-     *
-     * @throws RuntimeException When no database adapter is defined.
      */
-    public function getAdapter(): ?AdapterInterface
+    public function getAdapter(): AdapterInterface
     {
         return $this->adapter;
     }
 
     /**
      * Returns the set exclude clause
+     *
+     * @return array{field: string, value: scalar}|Closure|PredicateInterface|Where|string|null
      */
     public function getExclude(): array|Closure|PredicateInterface|Where|string|null
     {
@@ -182,13 +181,21 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
         $select          = new Select();
         $tableIdentifier = new TableIdentifier($this->table, $this->schema);
         $select->from($tableIdentifier)->columns([$this->field]);
-        $select->where->equalTo($this->field, '');
+
+        $where = new Where();
+        $where->equalTo($this->field, '');
+        $select->where($where);
 
         $exclude = $this->getExclude();
         if ($exclude !== null) {
             if (is_array($exclude)) {
-                $select->where->notEqualTo(
-                    (string) $exclude['field'],
+                if (! isset($exclude['field'], $exclude['value'])) {
+                    throw new Exception\InvalidArgumentException(
+                        "Exclude array must contain 'field' and 'value' keys"
+                    );
+                }
+                $where->notEqualTo(
+                    $exclude['field'],
                     (string) $exclude['value']
                 );
             } else {
@@ -208,9 +215,6 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     {
         $sql       = new Sql($this->adapter);
         $statement = $sql->prepareStatementForSqlObject($this->getSelect());
-        if (! $statement instanceof StatementInterface) {
-            throw new Exception\RuntimeException('No valid statement present');
-        }
 
         $parameters = $statement->getParameterContainer();
         if ($parameters !== null) {
@@ -220,8 +224,6 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
             $parameters['where1'] = $value;
         }
 
-        $result = $statement->execute();
-
-        return $result->current();
+        return $statement->execute()?->current();
     }
 }
