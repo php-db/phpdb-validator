@@ -3,7 +3,8 @@
         "8.1": true,
         "8.2": true,
         "8.3": true,
-        "8.4": true
+        "8.4": true,
+        "8.5": true
     },
     "exclude": [
         {
@@ -13,6 +14,11 @@
         {
             "name": "PHPUnit",
             "php": "8.4",
+            "dependencies": "lowest"
+        },
+        {
+            "name": "PHPUnit",
+            "php": "8.5",
             "dependencies": "lowest"
         }
     ]

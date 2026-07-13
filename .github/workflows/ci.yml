@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [refactor, 0.1.x]
+  pull_request:
+
+jobs:
+  tests:
+    name: "Tests: PHP ${{ matrix.php }} / laminas-validator ${{ matrix.laminas.name }} / ${{ matrix.dependencies }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+        dependencies: ['lowest', 'highest']
+        laminas:
+          - name: 'v2'
+            validator: '^2.28'
+            servicemanager: '^3.12'
+          - name: 'v3'
+            validator: '^3.0'
+            servicemanager: '^4.1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      # Pin the laminas-validator / laminas-servicemanager universe for this
+      # matrix leg. --no-update only rewrites composer.json so the resolver in
+      # the next step is free to pick lowest or highest within the pin.
+      - name: Pin dependency universe
+        run: |
+          composer require --no-update --no-interaction \
+            "laminas/laminas-validator:${{ matrix.laminas.validator }}" \
+            "laminas/laminas-servicemanager:${{ matrix.laminas.servicemanager }}"
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+        with:
+          dependency-versions: ${{ matrix.dependencies }}
+
+      - name: Report resolved versions
+        run: composer show laminas/laminas-validator laminas/laminas-servicemanager
+
+      - name: Run unit tests
+        run: composer test
+
+  qa:
+    name: "Static analysis & coding standards"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Coding standards
+        run: composer cs-check
+
+      # Mago is a standalone Rust binary distributed via Composer. Install it
+      # globally (pinned to the version tracked in mago.toml) so it stays out
+      # of the package's own require-dev while remaining reproducible.
+      - name: Install Mago
+        run: |
+          composer global require --no-interaction "carthage-software/mago:^1.43"
+          echo "$(composer global config home)/vendor/bin" >> "$GITHUB_PATH"
+
+      - name: Static analysis
+        run: composer static-analysis
