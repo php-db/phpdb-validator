@@ -16,7 +16,7 @@ use PhpDb\Adapter\Platform\Sql92;
 use PhpDb\Sql\Select;
 use PhpDb\Sql\Sql;
 use PhpDb\Validator\RecordExists;
-use PhpDbTest\Validator\TestAsset\TrustingSql92Platform;
+use PhpDbTestAsset\Validator\TrustingSql92Platform;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;

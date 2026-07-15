@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpDbTest\Validator\TestAsset;
+namespace PhpDbTestAsset\Validator;
 
 use Override;
 use PhpDb\Adapter\Platform\Sql92;

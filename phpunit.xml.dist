@@ -18,11 +18,11 @@
          cacheDirectory=".phpunit.cache"
 >
     <testsuites>
-        <testsuite name="phpdb-validator-unit-test">
-            <directory>./test/Unit</directory>
+        <testsuite name="unit test">
+            <directory>./test/unit</directory>
         </testsuite>
-        <testsuite name="phpdb-validator-integration-test">
-            <directory>./test/Integration</directory>
+        <testsuite name="integration test">
+            <directory>./test/integration</directory>
         </testsuite>
     </testsuites>
     <php>

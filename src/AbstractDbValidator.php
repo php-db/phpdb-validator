@@ -91,24 +91,23 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
         }
 
         $this->adapter = $options['adapter'];
-        unset($options['adapter']);
-
-        $this->table = $options['table'] ?? '';
-        unset($options['table']);
-
-        $this->schema = $options['schema'] ?? null;
-        unset($options['schema']);
-
-        $this->field = $options['field'] ?? '';
-        unset($options['field']);
-
+        $this->table   = $options['table'] ?? '';
+        $this->schema  = $options['schema'] ?? null;
+        $this->field   = $options['field'] ?? '';
         $this->exclude = $options['exclude'] ?? null;
-        unset($options['exclude']);
 
         if (isset($options['select']) && $options['select'] instanceof Select) {
             $this->select = $options['select'];
-            unset($options['select']);
         }
+
+        unset(
+            $options['adapter'],
+            $options['table'],
+            $options['schema'],
+            $options['field'],
+            $options['exclude'],
+            $options['select'],
+        );
 
         if ($this->table === '' && $this->schema === null) {
             throw new Exception\InvalidArgumentException('Table or Schema option missing.');

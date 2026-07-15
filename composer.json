@@ -55,7 +55,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "PhpDbTest\\Validator\\": "test/"
+            "PhpDbTest\\Validator\\Unit\\": "test/unit/",
+            "PhpDbTest\\Validator\\Integration\\": "test/integration/",
+            "PhpDbTestAsset\\Validator\\": "test/asset/"
         }
     },
     "scripts": {
@@ -66,9 +68,9 @@
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
-        "test": "phpunit --colors=always --testsuite phpdb-validator-unit-test",
+        "test": "phpunit --colors=always --testsuite \"unit test\"",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "test-integration": "phpunit --colors=always --testsuite phpdb-validator-integration-test",
+        "test-integration": "phpunit --colors=always --testsuite \"integration test\"",
         "static-analysis": "mago analyze",
         "upload-coverage": "coveralls -v"
     }

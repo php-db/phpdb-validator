@@ -14,7 +14,7 @@ use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Adapter\Platform\Sql92;
 use PhpDb\Validator\AbstractDbValidator;
-use PhpDbTest\Validator\TestAsset\ConcreteDbValidator;
+use PhpDbTestAsset\Validator\ConcreteDbValidator;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
