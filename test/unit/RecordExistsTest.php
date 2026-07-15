@@ -15,6 +15,7 @@ use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Adapter\Platform\Sql92;
 use PhpDb\Sql\Select;
 use PhpDb\Sql\Sql;
+use PhpDb\Sql\TableIdentifier;
 use PhpDb\Validator\RecordExists;
 use PhpDbTestAsset\Validator\TrustingSql92Platform;
 use PHPUnit\Framework\Attributes\Group;
@@ -278,6 +279,25 @@ final class RecordExistsTest extends TestCase
         $validator = new RecordExists([
             'table'   => 'users',
             'schema'  => 'my',
+            'field'   => 'field1',
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        static::assertSame(
+            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\'',
+            $validator->getSelect()->getSqlString(new TrustingSql92Platform())
+        );
+    }
+
+    /**
+     * Test that a TableIdentifier table option is successfully passed to the select
+     * statement
+     *
+     * @throws Exception
+     */
+    public function testSelectAcknowledgesTableIdentifier(): void
+    {
+        $validator = new RecordExists([
+            'table'   => new TableIdentifier('users', 'my'),
             'field'   => 'field1',
             'adapter' => $this->getMockHasResult(),
         ]);

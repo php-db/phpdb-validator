@@ -13,6 +13,7 @@ use PhpDb\Adapter\Driver\ResultInterface;
 use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Adapter\Platform\Sql92;
+use PhpDb\Sql\TableIdentifier;
 use PhpDb\Validator\AbstractDbValidator;
 use PhpDbTestAsset\Validator\ConcreteDbValidator;
 use PHPUnit\Framework\Attributes\Group;
@@ -61,14 +62,49 @@ final class AbstractDbTest extends TestCase
         ]);
     }
 
-    public function testConstructorWithNoTableAndSchemaKey(): void
+    public function testThrowsWhenTableOptionIsMissing(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Table or Schema option missing.');
-        $this->validator = new ConcreteDbValidator([
+        $this->expectExceptionMessage('Table option missing.');
+        new ConcreteDbValidator([
             'adapter' => $this->adapter,
             'field'   => 'field',
         ]);
+    }
+
+    public function testThrowsWhenTableOptionIsAnEmptyString(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table option missing.');
+        new ConcreteDbValidator([
+            'adapter' => $this->adapter,
+            'table'   => '',
+            'field'   => 'field',
+        ]);
+    }
+
+    public function testThrowsWhenSchemaIsCombinedWithTableIdentifier(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Schema option must not be combined with a TableIdentifier table option.');
+        new ConcreteDbValidator([
+            'adapter' => $this->adapter,
+            'table'   => new TableIdentifier('users', 'my'),
+            'schema'  => 'my',
+            'field'   => 'field',
+        ]);
+    }
+
+    public function testAcceptsTableIdentifierAsTableOption(): void
+    {
+        $validator = new ConcreteDbValidator([
+            'adapter' => $this->adapter,
+            'table'   => new TableIdentifier('users', 'my'),
+            'field'   => 'field',
+        ]);
+
+        static::assertSame('users', $validator->getTable());
+        static::assertSame('my', $validator->getSchema());
     }
 
     public function testConstructorWithNoFieldKey(): void
@@ -88,6 +124,7 @@ final class AbstractDbTest extends TestCase
         $this->validator = new ConcreteDbValidator([
             'adapter' => $this->adapter,
             'field'   => 'field',
+            'table'   => 'test_table',
             'schema'  => $schema,
         ]);
 
