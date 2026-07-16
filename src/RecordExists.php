@@ -8,6 +8,8 @@ use Override;
 
 /**
  * Confirms a record exists in a table.
+ *
+ * @mago-ignore analysis:missing-constructor
  */
 final class RecordExists extends AbstractDbValidator
 {

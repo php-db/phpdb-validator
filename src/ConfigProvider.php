@@ -8,15 +8,10 @@ use Laminas\ServiceManager\Factory\InvokableFactory;
 
 final class ConfigProvider
 {
-    public function __invoke(): array
-    {
-        return [
-            'validators' => $this->getValidatorConfig(),
-        ];
-    }
-
     /**
      * Return configuration for the validator plugin manager.
+     *
+     * @return array{factories: array<class-string, class-string>, aliases: array<string, class-string>}
      */
     public function getValidatorConfig(): array
     {
@@ -33,6 +28,16 @@ final class ConfigProvider
                 'dbRecordExists'   => RecordExists::class,
                 'DbRecordExists'   => RecordExists::class,
             ],
+        ];
+    }
+
+    /**
+     * @return array{validators: array{factories: array<class-string, class-string>, aliases: array<string, class-string>}}
+     */
+    public function __invoke(): array
+    {
+        return [
+            'validators' => $this->getValidatorConfig(),
         ];
     }
 }

@@ -19,6 +19,8 @@ use PhpDb\Sql\TableIdentifier;
 use PhpDb\Validator\RecordExists;
 use PhpDbTestAsset\Validator\TrustingSql92Platform;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -26,97 +28,13 @@ use PHPUnit\Framework\TestCase;
 final class RecordExistsTest extends TestCase
 {
     /**
-     * Return a Mock object for a Db result with rows
-     *
-     * @throws Exception
-     */
-    protected function getMockHasResult(): Adapter
-    {
-        // mock the adapter, driver, and parts
-        $mockConnection = $this->createMock(ConnectionInterface::class);
-
-        // Mock has result
-        $mockHasResultRow = new ArrayObject(['one' => 'one']);
-
-        $mockHasResult = $this->createMock(ResultInterface::class);
-        $mockHasResult
-            ->method('current')
-            ->willReturn($mockHasResultRow);
-
-        $mockHasResultStatement = $this->createMock(StatementInterface::class);
-        $mockHasResultStatement
-            ->method('execute')
-            ->willReturn($mockHasResult);
-
-        $mockHasResultStatement
-            ->method('getParameterContainer')
-            ->willReturn(new ParameterContainer());
-
-        $mockHasResultDriver = $this->createMock(DriverInterface::class);
-        $mockHasResultDriver->method('createStatement')->willReturn($mockHasResultStatement);
-        $mockHasResultDriver->method('getConnection')->willReturn($mockConnection);
-
-        return new Adapter($mockHasResultDriver, new Sql92());
-    }
-
-    /**
-     * Return a Mock object for a Db result without rows
-     *
-     * @throws Exception
-     */
-    protected function getMockNoResult(): Adapter
-    {
-        // mock the adapter, driver, and parts
-        $mockConnection = $this->createMock(ConnectionInterface::class);
-
-        $mockNoResult = $this->createMock(ResultInterface::class);
-        $mockNoResult
-            ->method('current')
-            ->willReturn(null);
-
-        $mockNoResultStatement = $this->createMock(StatementInterface::class);
-        $mockNoResultStatement
-            ->method('execute')
-            ->willReturn($mockNoResult);
-
-        $mockNoResultStatement
-            ->method('getParameterContainer')
-            ->willReturn(new ParameterContainer());
-
-        $mockNoResultDriver = $this->createMock(DriverInterface::class);
-        $mockNoResultDriver
-            ->method('createStatement')
-            ->willReturn($mockNoResultStatement);
-        $mockNoResultDriver
-            ->method('getConnection')
-            ->willReturn($mockConnection);
-
-        return new Adapter($mockNoResultDriver, new Sql92());
-    }
-
-    /**
      * Test basic function of RecordExists (no exclusion)
      *
      * @throws Exception
      * @return void
      */
-    public function testBasicFindsRecord()
-    {
-        $validator = new RecordExists([
-            'table'   => 'users',
-            'field'   => 'field1',
-            'adapter' => $this->getMockHasResult(),
-        ]);
-        static::assertTrue($validator->isValid('value1'));
-    }
-
-    /**
-     * Test basic function of RecordExists (no exclusion)
-     *
-     * @throws Exception
-     * @return void
-     */
-    public function testBasicFindsNoRecord()
+    #[Test]
+    public function basicFindsNoRecord()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -127,12 +45,45 @@ final class RecordExistsTest extends TestCase
     }
 
     /**
+     * Test basic function of RecordExists (no exclusion)
+     *
+     * @throws Exception
+     * @return void
+     */
+    #[Test]
+    public function basicFindsRecord()
+    {
+        $validator = new RecordExists([
+            'table'   => 'users',
+            'field'   => 'field1',
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        static::assertTrue($validator->isValid('value1'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[Test]
+    public function excludeConstructor(): void
+    {
+        $validator = new RecordExists([
+            'table'   => 'users',
+            'field'   => 'field1',
+            'exclude' => 'id != 1',
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        static::assertTrue($validator->isValid('value3'));
+    }
+
+    /**
      * Test the exclusion function
      *
      * @throws Exception
      * @return void
      */
-    public function testExcludeWithArray()
+    #[Test]
+    public function excludeWithArray()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -153,7 +104,8 @@ final class RecordExistsTest extends TestCase
      * @throws Exception
      * @return void
      */
-    public function testExcludeWithArrayNoRecord()
+    #[Test]
+    public function excludeWithArrayNoRecord()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -174,7 +126,8 @@ final class RecordExistsTest extends TestCase
      * @throws Exception
      * @return void
      */
-    public function testExcludeWithString()
+    #[Test]
+    public function excludeWithString()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -192,7 +145,8 @@ final class RecordExistsTest extends TestCase
      * @throws Exception
      * @return void
      */
-    public function testExcludeWithStringNoRecord()
+    #[Test]
+    public function excludeWithStringNoRecord()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -206,15 +160,115 @@ final class RecordExistsTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testExcludeConstructor(): void
+    #[Test]
+    #[TestDox('PhpDb\Validator\RecordExists::getSelect')]
+    public function getSelect(): void
     {
         $validator = new RecordExists([
             'table'   => 'users',
+            'schema'  => 'my',
             'field'   => 'field1',
-            'exclude' => 'id != 1',
+            'exclude' => [
+                'field' => 'foo',
+                'value' => 'bar',
+            ],
             'adapter' => $this->getMockHasResult(),
         ]);
-        static::assertTrue($validator->isValid('value3'));
+        $select = $validator->getSelect();
+        static::assertInstanceOf(Select::class, $select);
+        static::assertSame(
+            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\' AND "foo" != \'bar\'',
+            $select->getSqlString(new TrustingSql92Platform()),
+        );
+
+        $sql        = new Sql($this->getMockHasResult());
+        $statement  = $sql->prepareStatementForSqlObject($select);
+        $parameters = $statement->getParameterContainer();
+        static::assertNotNUll($parameters);
+
+        static::assertSame('', $parameters['where1']);
+        static::assertSame('bar', $parameters['where2']);
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[Test]
+    public function getSelectWithSameValidatorTwice(): void
+    {
+        $validator = new RecordExists([
+            'table'   => 'users',
+            'schema'  => 'my',
+            'field'   => 'field1',
+            'exclude' => [
+                'field' => 'foo',
+                'value' => 'bar',
+            ],
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        $select = $validator->getSelect();
+        static::assertInstanceOf(Select::class, $select);
+        static::assertSame(
+            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\' AND "foo" != \'bar\'',
+            $select->getSqlString(new TrustingSql92Platform()),
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    #[Test]
+    public function returnsNoRecordFoundMessageWhenRecordDoesNotExist(): void
+    {
+        $validator = new RecordExists([
+            'adapter' => $this->getMockNoResult(),
+            'table'   => 'users',
+            'field'   => 'field1',
+        ]);
+
+        static::assertFalse($validator->isValid('value'));
+        static::assertSame(['noRecordFound' => 'No record matching the input was found'], $validator->getMessages());
+    }
+
+    /**
+     * Test that the supplied table and schema are successfully passed to the select
+     * statement
+     *
+     * @throws Exception
+     */
+    #[Test]
+    public function selectAcknowledgesTableAndSchema(): void
+    {
+        $validator = new RecordExists([
+            'table'   => 'users',
+            'schema'  => 'my',
+            'field'   => 'field1',
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        static::assertSame(
+            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\'',
+            $validator->getSelect()->getSqlString(new TrustingSql92Platform()),
+        );
+    }
+
+    /**
+     * Test that a TableIdentifier table option is successfully passed to the select
+     * statement
+     *
+     * @throws Exception
+     */
+    #[Test]
+    public function selectAcknowledgesTableIdentifier(): void
+    {
+        $validator = new RecordExists([
+            'table'   => new TableIdentifier('users', 'my'),
+            'field'   => 'field1',
+            'adapter' => $this->getMockHasResult(),
+        ]);
+        static::assertSame(
+            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\'',
+            $validator->getSelect()->getSqlString(new TrustingSql92Platform()),
+        );
     }
 
     /**
@@ -223,7 +277,8 @@ final class RecordExistsTest extends TestCase
      *
      * @return void
      */
-    public function testThrowsExceptionWithNoAdapter()
+    #[Test]
+    public function throwsExceptionWithNoAdapter()
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Adapter option missing.');
@@ -241,7 +296,8 @@ final class RecordExistsTest extends TestCase
      * @throws Exception
      * @return void
      */
-    public function testWithSchema()
+    #[Test]
+    public function withSchema()
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -257,7 +313,8 @@ final class RecordExistsTest extends TestCase
      *
      * @throws Exception
      */
-    public function testWithSchemaNoResult(): void
+    #[Test]
+    public function withSchemaNoResult(): void
     {
         $validator = new RecordExists([
             'table'   => 'users',
@@ -269,117 +326,55 @@ final class RecordExistsTest extends TestCase
     }
 
     /**
-     * Test that the supplied table and schema are successfully passed to the select
-     * statement
+     * Return a Mock object for a Db result with rows
      *
      * @throws Exception
      */
-    public function testSelectAcknowledgesTableAndSchema(): void
+    protected function getMockHasResult(): Adapter
     {
-        $validator = new RecordExists([
-            'table'   => 'users',
-            'schema'  => 'my',
-            'field'   => 'field1',
-            'adapter' => $this->getMockHasResult(),
-        ]);
-        static::assertSame(
-            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\'',
-            $validator->getSelect()->getSqlString(new TrustingSql92Platform())
-        );
+        // mock the adapter, driver, and parts
+        $mockConnection = $this->createMock(ConnectionInterface::class);
+
+        // Mock has result
+        $mockHasResultRow = new ArrayObject(['one' => 'one']);
+
+        $mockHasResult = $this->createMock(ResultInterface::class);
+        $mockHasResult->method('current')->willReturn($mockHasResultRow);
+
+        $mockHasResultStatement = $this->createMock(StatementInterface::class);
+        $mockHasResultStatement->method('execute')->willReturn($mockHasResult);
+
+        $mockHasResultStatement->method('getParameterContainer')->willReturn(new ParameterContainer());
+
+        $mockHasResultDriver = $this->createMock(DriverInterface::class);
+        $mockHasResultDriver->method('createStatement')->willReturn($mockHasResultStatement);
+        $mockHasResultDriver->method('getConnection')->willReturn($mockConnection);
+
+        return new Adapter($mockHasResultDriver, new Sql92());
     }
 
     /**
-     * Test that a TableIdentifier table option is successfully passed to the select
-     * statement
+     * Return a Mock object for a Db result without rows
      *
      * @throws Exception
      */
-    public function testSelectAcknowledgesTableIdentifier(): void
+    protected function getMockNoResult(): Adapter
     {
-        $validator = new RecordExists([
-            'table'   => new TableIdentifier('users', 'my'),
-            'field'   => 'field1',
-            'adapter' => $this->getMockHasResult(),
-        ]);
-        static::assertSame(
-            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\'',
-            $validator->getSelect()->getSqlString(new TrustingSql92Platform())
-        );
-    }
+        // mock the adapter, driver, and parts
+        $mockConnection = $this->createMock(ConnectionInterface::class);
 
-    /**
-     * @throws Exception
-     */
-    public function testReturnsNoRecordFoundMessageWhenRecordDoesNotExist(): void
-    {
-        $validator = new RecordExists([
-            'adapter' => $this->getMockNoResult(),
-            'table'   => 'users',
-            'field'   => 'field1',
-        ]);
+        $mockNoResult = $this->createMock(ResultInterface::class);
+        $mockNoResult->method('current')->willReturn(null);
 
-        static::assertFalse($validator->isValid('value'));
-        static::assertSame(
-            ['noRecordFound' => 'No record matching the input was found'],
-            $validator->getMessages()
-        );
-    }
+        $mockNoResultStatement = $this->createMock(StatementInterface::class);
+        $mockNoResultStatement->method('execute')->willReturn($mockNoResult);
 
-    /**
-     * @testdox PhpDb\Validator\RecordExists::getSelect
-     * @throws Exception
-     */
-    public function testGetSelect(): void
-    {
-        $validator = new RecordExists([
-            'table'   => 'users',
-            'schema'  => 'my',
-            'field'   => 'field1',
-            'exclude' => [
-                'field' => 'foo',
-                'value' => 'bar',
-            ],
-            'adapter' => $this->getMockHasResult(),
-        ]);
-        $select    = $validator->getSelect();
-        static::assertInstanceOf(Select::class, $select);
-        static::assertSame(
-            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\' AND "foo" != \'bar\'',
-            $select->getSqlString(new TrustingSql92Platform())
-        );
+        $mockNoResultStatement->method('getParameterContainer')->willReturn(new ParameterContainer());
 
-        $sql        = new Sql($this->getMockHasResult());
-        $statement  = $sql->prepareStatementForSqlObject($select);
-        $parameters = $statement->getParameterContainer();
-        static::assertNotNUll($parameters);
+        $mockNoResultDriver = $this->createMock(DriverInterface::class);
+        $mockNoResultDriver->method('createStatement')->willReturn($mockNoResultStatement);
+        $mockNoResultDriver->method('getConnection')->willReturn($mockConnection);
 
-        static::assertSame('', $parameters['where1']);
-        static::assertSame('bar', $parameters['where2']);
-    }
-
-    /**
-     * @cover PhpDb\Validator\RecordExists::getSelect
-     * @throws Exception
-     */
-    public function testGetSelectWithSameValidatorTwice(): void
-    {
-        $validator = new RecordExists(
-            [
-                'table'   => 'users',
-                'schema'  => 'my',
-                'field'   => 'field1',
-                'exclude' => [
-                    'field' => 'foo',
-                    'value' => 'bar',
-                ],
-                'adapter' => $this->getMockHasResult(),
-            ]
-        );
-        $select    = $validator->getSelect();
-        static::assertInstanceOf(Select::class, $select);
-        static::assertSame(
-            'SELECT "my"."users"."field1" AS "field1" FROM "my"."users" WHERE "field1" = \'\' AND "foo" != \'bar\'',
-            $select->getSqlString(new TrustingSql92Platform())
-        );
+        return new Adapter($mockNoResultDriver, new Sql92());
     }
 }

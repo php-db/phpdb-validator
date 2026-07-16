@@ -6,7 +6,11 @@ namespace PhpDbTestAsset\Validator;
 
 use Override;
 use PhpDb\Validator\AbstractDbValidator;
+use PhpDb\Validator\Options;
 
+/**
+ * @psalm-import-type OptionsArgument from Options
+ */
 final class ConcreteDbValidator extends AbstractDbValidator
 {
     public const FOO_MESSAGE = 'fooMessage';

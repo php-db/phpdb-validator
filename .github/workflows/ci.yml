@@ -1,116 +1,59 @@
-name: CI
+name: "CI"
 
 on:
-  pull_request:
   push:
-    branches:
-    tags:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
 
 jobs:
-  tests:
-    name: "Tests: PHP ${{ matrix.php }} / laminas-validator ${{ matrix.laminas.name }} / ${{ matrix.dependencies }}"
+  mago:
+    name: "PHP ${{ matrix.php }} | ${{ matrix.dependencies }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php: ['8.2', '8.3', '8.4', '8.5']
-        dependencies: ['lowest', 'locked', 'highest']
-        laminas:
-          - name: 'v2'
-            validator: '^2.28'
-            servicemanager: '^3.12'
-          - name: 'v3'
-            validator: '^3.0'
-            servicemanager: '^4.1'
-
+        dependencies: ['lowest', 'locked', 'latest']
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: Setup PHP
+      - name: Set up PHP and Mago
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
-          tools: composer:v2
+          tools: mago
 
-      # Pin the laminas-validator / laminas-servicemanager universe for this
-      # matrix leg. --no-update only rewrites composer.json so the resolver in
-      # the next step is free to pick lowest or highest within the pin.
-      - name: Pin dependency universe
-        run: |
-          composer require --no-update --no-interaction \
-            "laminas/laminas-validator:${{ matrix.laminas.validator }}" \
-            "laminas/laminas-servicemanager:${{ matrix.laminas.servicemanager }}"
+      # Resolve dependencies at the configured strategy level.
+      # "locked" uses the committed composer.lock as-is.
+      - name: Install dependencies (lowest)
+        if: matrix.dependencies == 'lowest'
+        run: composer update --prefer-lowest --no-interaction --no-progress
 
-      - name: Install dependencies (${{ matrix.dependencies }})
-        run: |
-          if [ "${{ matrix.dependencies }}" = "lowest" ]; then
-            composer update --prefer-lowest --prefer-stable --no-interaction --no-progress
-          else
-            composer update --no-interaction --no-progress
-          fi
-
-      - name: Report resolved versions
-        run: |
-          composer show laminas/laminas-validator
-          composer show laminas/laminas-servicemanager
-
-      - name: Run unit tests
-        run: composer test
-
-  qa:
-    name: "Standards, analysis & docs"
-    runs-on: ubuntu-latest
-    steps:
-      # fetch-depth: 0 pulls tags and history so the BC check has a baseline.
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          coverage: none
-          tools: composer:v2
-
-      - name: Install dependencies
+      - name: Install dependencies (locked)
+        if: matrix.dependencies == 'locked'
         run: composer install --no-interaction --no-progress
 
-      - name: Coding standards
-        run: composer cs-check
+      - name: Install dependencies (latest)
+        if: matrix.dependencies == 'latest'
+        run: composer update --no-interaction --no-progress
 
-      # Mago is a standalone Rust binary distributed via Composer. Install it
-      # globally (pinned to the version tracked in mago.toml) so it stays out
-      # of the package's own require-dev while remaining reproducible.
-      - name: Install Mago
-        run: |
-          composer global require --no-interaction "carthage-software/mago:^1.43"
-          echo "$(composer global config home)/vendor/bin" >> "$GITHUB_PATH"
+      # Set the Mago PHP version via env var so it overrides mago.toml
+      # for each matrix PHP version without mutating the config file.
+      - name: Pin Mago PHP version
+        run: echo "MAGO_PHP_VERSION=${{ matrix.php }}" >> "$GITHUB_ENV"
 
-      - name: Static analysis
-        run: composer static-analysis
+      - name: Check formatting
+        run: mago format --check
 
-      - name: Markdown lint
-        run: npx --yes markdownlint-cli2@0.23.0 "docs/**/*.md" "README.md"
+      - name: Lint
+        if: success() || failure()
+        run: mago lint
 
-      - name: Documentation build
-        run: |
-          pip install --quiet mkdocs
-          mkdocs build --strict
+      - name: Analyze
+        if: success() || failure()
+        run: mago analyze
 
-      # Compares the public API against the most recent release tag. No-op until
-      # the first tag exists; installed globally to avoid clashing with the
-      # package's own dependencies.
-      - name: Backward compatibility check
-        run: |
-          if git describe --tags --abbrev=0 >/dev/null 2>&1; then
-            composer global require --no-interaction roave/backward-compatibility-check
-            "$(composer global config home)/vendor/bin/roave-backward-compatibility-check"
-          else
-            echo "No release tag yet — skipping BC check until the first tagged release."
-          fi
+      - name: Test
+        if: success() || failure()
+        run: ./vendor/bin/phpunit --colors=always

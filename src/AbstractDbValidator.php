@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace PhpDb\Validator;
 
 use Closure;
-use Laminas\Translator\TranslatorInterface;
 use Laminas\Validator\AbstractValidator;
-use Laminas\Validator\Exception;
 use Laminas\Validator\Exception\InvalidArgumentException;
-use PhpDb\Adapter\Adapter;
 use PhpDb\Adapter\AdapterAwareInterface;
 use PhpDb\Adapter\AdapterAwareTrait;
 use PhpDb\Adapter\AdapterInterface;
@@ -21,24 +18,13 @@ use PhpDb\Sql\Where;
 
 use function is_array;
 use function is_scalar;
-use function is_string;
 
 /**
  * Class for Database record validation
  *
- * @psalm-type OptionsArgument = array{
- * adapter?: Adapter,
- * select?: string|array|Select,
- * table?: string|TableIdentifier,
- * schema?: string,
- * field?: string,
- * exclude?: array{field: string, value: scalar}|Closure|PredicateInterface|Where|string,
- * messages?: array<string, string>,
- * translator?: TranslatorInterface|null,
- * translatorTextDomain?: string|null,
- * translatorEnabled?: bool,
- * valueObscured?: bool,
- * }
+ * @psalm-import-type OptionsArgument from Options
+ *
+ * @api
  */
 abstract class AbstractDbValidator extends AbstractValidator implements AdapterAwareInterface
 {
@@ -85,48 +71,15 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
      */
     public function __construct(array $options)
     {
-        if (! isset($options['adapter'])) {
-            throw new Exception\InvalidArgumentException('Adapter option missing.');
-        }
+        $optionsData = new Options($options);
 
-        $table  = $options['table'] ?? null;
-        $schema = $options['schema'] ?? null;
+        $this->adapter = $optionsData->adapter;
+        $this->table   = $optionsData->table;
+        $this->field   = $optionsData->field;
+        $this->exclude = $optionsData->exclude;
+        $this->select  = $optionsData->select;
 
-        if ($table instanceof TableIdentifier) {
-            if ($schema !== null) {
-                throw new Exception\InvalidArgumentException(
-                    'Schema option must not be combined with a TableIdentifier table option.'
-                );
-            }
-        } elseif (is_string($table) && $table !== '') {
-            $table = new TableIdentifier($table, $schema);
-        } else {
-            throw new Exception\InvalidArgumentException('Table option missing.');
-        }
-
-        $this->adapter = $options['adapter'];
-        $this->table   = $table;
-        $this->field   = $options['field'] ?? '';
-        $this->exclude = $options['exclude'] ?? null;
-
-        if (isset($options['select']) && $options['select'] instanceof Select) {
-            $this->select = $options['select'];
-        }
-
-        unset(
-            $options['adapter'],
-            $options['table'],
-            $options['schema'],
-            $options['field'],
-            $options['exclude'],
-            $options['select'],
-        );
-
-        if ($this->field === '') {
-            throw new Exception\InvalidArgumentException('Field option missing.');
-        }
-
-        parent::__construct($options);
+        parent::__construct($optionsData->params);
     }
 
     /**
@@ -153,14 +106,6 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     public function getField(): string
     {
         return $this->field;
-    }
-
-    /**
-     * Returns the set table
-     */
-    public function getTable(): string
-    {
-        return $this->table->getTable();
     }
 
     /**
@@ -193,24 +138,23 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
         $where->equalTo($this->field, '');
         $select->where($where);
 
-        $exclude = $this->getExclude();
-        if ($exclude !== null) {
-            if (is_array($exclude)) {
-                if (! isset($exclude['field'], $exclude['value'])) {
-                    throw new Exception\InvalidArgumentException(
-                        "Exclude array must contain 'field' and 'value' keys"
-                    );
-                }
-                $where->notEqualTo(
-                    $exclude['field'],
-                    (string) $exclude['value']
-                );
-            } else {
-                $select->where($exclude);
-            }
-        }
+        $exclude = $this->exclude;
+        match (true) {
+            null === $exclude => null,
+            $exclude instanceof Closure => $select->where($exclude),
+            is_array($exclude) => $where->notEqualTo($exclude['field'], (string) $exclude['value']),
+            default            => $select->where($exclude),
+        };
 
         return $select;
+    }
+
+    /**
+     * Returns the set table
+     */
+    public function getTable(): string
+    {
+        return $this->table->getTable();
     }
 
     /**
@@ -220,13 +164,13 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
      */
     protected function query(mixed $value): mixed
     {
-        $sql       = new Sql($this->adapter);
+        $sql       = new Sql($this->getAdapter());
         $statement = $sql->prepareStatementForSqlObject($this->getSelect());
 
         $parameters = $statement->getParameterContainer();
-        if ($parameters !== null) {
-            if (! is_scalar($value) && $value !== null) {
-                throw new Exception\InvalidArgumentException('Value must be string, integer or null');
+        if (null !== $parameters) {
+            if (! is_scalar($value) && null !== $value) {
+                throw new InvalidArgumentException('Value must be string, integer or null');
             }
             $parameters['where1'] = $value;
         }
