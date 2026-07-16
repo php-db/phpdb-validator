@@ -12,8 +12,3 @@ Run the following to install this library:
 ```bash
 $ composer require php-db/phpdb-validator
 ```
-
-## Documentation
-
-- [Introduction](v1/index.md)
-- [RecordExists/NoRecordExists](v1/exists.md)

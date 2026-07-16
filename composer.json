@@ -1,17 +1,17 @@
 {
-    "name": "axleus/laminas-db-validator",
-    "description": "laminas-db validators for laminas-validator.",
+    "name": "php-db/phpdb-validator",
+    "description": "phpdb validators for laminas-validator.",
     "license": "BSD-3-Clause",
     "keywords": [
-        "laminas",
+        "phpdb",
         "validator",
         "db"
     ],
-    "homepage": "https://github.com/axleus/laminas-db-validator/discussions",
+    "homepage": "https://github.com/php-db/phpdb-validator",
     "support": {
-        "issues": "https://github.com/axleus/laminas-db-validator/issues",
-        "source": "https://github.com/axleus/laminas-db-validator",
-        "forum": "https://github.com/axleus/laminas-db-validator/discussions"
+        "issues": "https://github.com/php-db/phpdb-validator/issues",
+        "source": "https://github.com/php-db/phpdb-validator",
+        "forum": "https://github.com/php-db/phpdb-validator/discussions"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -21,29 +21,25 @@
             "php": "8.2.99"
         },
         "allow-plugins": {
-            "composer/package-versions-deprecated": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "composer/package-versions-deprecated": true
         }
     },
     "extra": {
         "laminas": {
-            "component": "Laminas\\Db\\Mysql",
-            "config-provider": "Laminas\\Db\\Mysql\\ConfigProvider"
+            "component": "PhpDb\\Validator",
+            "config-provider": "PhpDb\\Validator\\ConfigProvider"
         }
     },
     "require": {
-        "php": "~8.2.0 || ~8.3.0 || ~8.4.0",
-        "php-db/phpdb": "^0.3.0",
-        "laminas/laminas-servicemanager": "^4.1.0",
-        "laminas/laminas-validator": "^3.0.0",
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "php-db/phpdb": "^0.6.0",
+        "laminas/laminas-servicemanager": "^3.12 || ^4.1",
+        "laminas/laminas-validator": "^2.28 || ^3.0",
         "laminas/laminas-translator": "^1.0",
         "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "laminas/laminas-coding-standard": "^3.0.1",
-        "phpunit/phpunit": "^10.5.0",
-        "phpstan/phpstan": "^2.1",
-        "phpstan/phpstan-phpunit": "^2.0"
+        "phpunit/phpunit": "^11.5.0"
     },
     "suggest": {
         "laminas/laminas-i18n": "Laminas\\I18n component to allow translation of validation error messages",
@@ -57,23 +53,29 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "PhpDbTest\\Validator\\": "test/Db"
+            "PhpDbTest\\Validator\\Unit\\": "test/unit/",
+            "PhpDbTest\\Validator\\Integration\\": "test/integration/",
+            "PhpDbTestAsset\\Validator\\": "test/asset/"
         }
     },
     "scripts": {
         "check": [
             "@cs-check",
             "@static-analysis",
-            "@test",
-            "@test-integration"
+            "@test"
         ],
-        "cs-check": "phpcs",
-        "cs-fix": "phpcbf",
+        "cs-check": [
+            "mago format --check",
+            "mago lint"
+        ],
+        "cs-fix": [
+            "mago format",
+            "mago lint --fix"
+        ],
         "test": "phpunit --colors=always --testsuite \"unit test\"",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
         "test-integration": "phpunit --colors=always --testsuite \"integration test\"",
-        "static-analysis": "vendor/bin/phpstan analyse --memory-limit=256M",
-        "sa-generate-baseline": "vendor/bin/phpstan analyse --memory-limit=256M --generate-baseline",
+        "static-analysis": "mago analyze",
         "upload-coverage": "coveralls -v"
     }
 }

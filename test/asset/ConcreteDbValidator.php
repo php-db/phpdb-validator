@@ -2,18 +2,22 @@
 
 declare(strict_types=1);
 
-namespace PhpDbTest\Validator\TestAsset;
+namespace PhpDbTestAsset\Validator;
 
 use Override;
 use PhpDb\Validator\AbstractDbValidator;
+use PhpDb\Validator\Options;
 
+/**
+ * @psalm-import-type OptionsArgument from Options
+ */
 final class ConcreteDbValidator extends AbstractDbValidator
 {
     public const FOO_MESSAGE = 'fooMessage';
     public const BAR_MESSAGE = 'barMessage';
 
     /** @var array<string, string> */
-    protected array $messageTemplates = [
+    public array $messageTemplates = [
         'fooMessage' => '%value% was passed',
         'barMessage' => '%value% was wrong',
     ];

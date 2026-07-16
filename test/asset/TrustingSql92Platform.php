@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PhpDbTest\Validator\TestAsset;
+namespace PhpDbTestAsset\Validator;
 
 use Override;
 use PhpDb\Adapter\Platform\Sql92;
@@ -13,8 +13,8 @@ final class TrustingSql92Platform extends Sql92
      * {@inheritDoc}
      */
     #[Override]
-    public function quoteValue($value): string
+    public function quoteValue(string $value): string
     {
-        return $this->quoteTrustedValue($value);
+        return (string) $this->quoteTrustedValue($value);
     }
 }

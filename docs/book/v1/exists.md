@@ -1,4 +1,4 @@
-# Db\\RecordExists and Db\\NoRecordExists Validators
+# RecordExists and NoRecordExists Validators
 
 `PhpDb\Validator\RecordExists` and `PhpDb\Validator\NoRecordExists` provide
 a means to test whether a record exists in a given table of a database, with a
@@ -21,12 +21,14 @@ given value.
 The following options are supported for `PhpDb\Validator\NoRecordExists` and
 `PhpDb\Validator\RecordExists`:
 
-- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be 
+- `adapter`: A database adapter implementing `PhpDb\Adapter\AdapterInterface` that will be
   used for the search. Required but not immediately within the constructor
 - `exclude`: Sets records that will be excluded from the search.
 - `field`: The database field within this table that will be searched for the record.
-- `schema`: Sets the schema that will be used for the search.
-- `table`: The table that will be searched for the record.
+- `schema`: Sets the schema that will be used for the search. Only valid when
+  `table` is a string.
+- `table`: The table that will be searched for the record, as a non-empty string
+  or a `PhpDb\Sql\TableIdentifier` instance. Required.
 - `select`: An instance of a where clause by which to add further precision to the query
 
 ## Basic usage
@@ -157,6 +159,19 @@ $validator = new PhpDb\Validator\RecordExists([
     'table'  => 'users',
     'schema' => 'my',
     'field'  => 'id',
+    'adapter' => $dbAdapter,
+]);
+```
+
+Alternatively, supply a `PhpDb\Sql\TableIdentifier` carrying both the table and
+schema as the `table` option. The `schema` option must be omitted in this case:
+
+```php
+use PhpDb\Sql\TableIdentifier;
+
+$validator = new PhpDb\Validator\RecordExists([
+    'table'   => new TableIdentifier('users', 'my'),
+    'field'   => 'id',
     'adapter' => $dbAdapter,
 ]);
 ```
