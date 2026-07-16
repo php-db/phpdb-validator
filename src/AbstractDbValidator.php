@@ -37,7 +37,7 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     public const ERROR_RECORD_FOUND    = 'recordFound';
 
     /** @var array<string, string> Message templates */
-    protected array $messageTemplates = [
+    public array $messageTemplates = [
         self::ERROR_NO_RECORD_FOUND => 'No record matching the input was found',
         self::ERROR_RECORD_FOUND    => 'A record matching the input was found',
     ];

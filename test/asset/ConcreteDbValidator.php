@@ -17,7 +17,7 @@ final class ConcreteDbValidator extends AbstractDbValidator
     public const BAR_MESSAGE = 'barMessage';
 
     /** @var array<string, string> */
-    protected array $messageTemplates = [
+    public array $messageTemplates = [
         'fooMessage' => '%value% was passed',
         'barMessage' => '%value% was wrong',
     ];
