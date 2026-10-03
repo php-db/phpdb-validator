@@ -164,7 +164,7 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     /**
      * Run query and returns matches, or null if no matches are found.
      *
-     * @return mixed when matches are found; null when there are none (PDO reports no rows as false).
+     * @return mixed when matches are found; null or false when there are none (PDO reports no rows as false).
      */
     protected function query(mixed $value): mixed
     {
@@ -179,8 +179,6 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
             $parameters['where1'] = $value;
         }
 
-        $row = $statement->execute()?->current();
-
-        return false === $row ? null : $row;
+        return $statement->execute()?->current();
     }
 }
