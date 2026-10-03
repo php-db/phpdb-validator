@@ -41,7 +41,6 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
      *
      * @var array<string, string>
      */
-    // @mago-ignore analysis:incompatible-property-type
     public array $messageTemplates = [
         self::ERROR_NO_RECORD_FOUND => 'No record matching the input was found',
         self::ERROR_RECORD_FOUND    => 'A record matching the input was found',
