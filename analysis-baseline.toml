@@ -1,0 +1,31 @@
+variant = "loose"
+
+[[issues]]
+file = "src/Options.php"
+code = "match-arm-always-true"
+message = "This match arm is always true, making subsequent arms unreachable."
+count = 1
+
+[[issues]]
+file = "src/Options.php"
+code = "redundant-logical-operation"
+message = "Redundant `&&` operation: left operand is always truthy and right operand is evaluated."
+count = 1
+
+[[issues]]
+file = "src/Options.php"
+code = "redundant-logical-operation"
+message = "Redundant `&&` operation: left operand is evaluated and right operand is always truthy."
+count = 1
+
+[[issues]]
+file = "src/Options.php"
+code = "redundant-null-coalesce"
+message = "Redundant null coalesce: left-hand side can never be `null` or undefined."
+count = 2
+
+[[issues]]
+file = "src/Options.php"
+code = "unreachable-match-default-arm"
+message = "This default arm is unreachable."
+count = 1
