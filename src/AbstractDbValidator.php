@@ -33,8 +33,8 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     /**
      * Error constants
      */
-    public const ERROR_NO_RECORD_FOUND = 'noRecordFound';
-    public const ERROR_RECORD_FOUND    = 'recordFound';
+    public const string ERROR_NO_RECORD_FOUND = 'noRecordFound';
+    public const string ERROR_RECORD_FOUND    = 'recordFound';
 
     /**
      * Message templates.
