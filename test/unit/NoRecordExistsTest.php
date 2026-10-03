@@ -40,22 +40,6 @@ final class NoRecordExistsTest extends TestCase
     }
 
     /**
-     * PDO reports "no rows" as false rather than null; that must still count as no record.
-     *
-     * @throws Exception
-     */
-    #[Test]
-    public function noRowsReportedAsFalseFindsNoRecord(): void
-    {
-        $validator = new NoRecordExists([
-            'table'   => 'users',
-            'field'   => 'field1',
-            'adapter' => $this->getMockNoResult(false),
-        ]);
-        static::assertTrue($validator->isValid('nosuchvalue'));
-    }
-
-    /**
      * Test basic function of RecordExists (no exclusion)
      *
      * @throws Exception
@@ -149,6 +133,22 @@ final class NoRecordExistsTest extends TestCase
             'field'   => 'users',
             'exclude' => 'id != 1',
             'adapter' => $this->getMockNoResult(),
+        ]);
+        static::assertTrue($validator->isValid('nosuchvalue'));
+    }
+
+    /**
+     * PDO reports "no rows" as false rather than null; that must still count as no record.
+     *
+     * @throws Exception
+     */
+    #[Test]
+    public function noRowsReportedAsFalseFindsNoRecord(): void
+    {
+        $validator = new NoRecordExists([
+            'table'   => 'users',
+            'field'   => 'field1',
+            'adapter' => $this->getMockNoResult(false),
         ]);
         static::assertTrue($validator->isValid('nosuchvalue'));
     }
