@@ -18,6 +18,7 @@ use PhpDb\Sql\Sql;
 use PhpDb\Sql\TableIdentifier;
 use PhpDb\Validator\RecordExists;
 use PhpDbTestAsset\Validator\TrustingSql92Platform;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestDox;
@@ -27,6 +28,16 @@ use PHPUnit\Framework\TestCase;
 #[Group('unit')]
 final class RecordExistsTest extends TestCase
 {
+    /** @return array<string, array{mixed}> */
+    public static function noRowShapes(): array
+    {
+        return [
+            'null'        => [null],
+            'false (PDO)' => [false],
+            'empty array' => [[]],
+        ];
+    }
+
     /**
      * Test basic function of RecordExists (no exclusion)
      *
@@ -215,6 +226,23 @@ final class RecordExistsTest extends TestCase
     }
 
     /**
+     * Every shape a driver uses for "no row" must count as no record.
+     *
+     * @throws Exception
+     */
+    #[Test]
+    #[DataProvider('noRowShapes')]
+    public function noRowShapeFindsNoRecord(mixed $current): void
+    {
+        $validator = new RecordExists([
+            'table'   => 'users',
+            'field'   => 'field1',
+            'adapter' => $this->getMockNoResult($current),
+        ]);
+        static::assertFalse($validator->isValid('nosuchvalue'));
+    }
+
+    /**
      * @throws Exception
      */
     #[Test]
@@ -358,13 +386,13 @@ final class RecordExistsTest extends TestCase
      *
      * @throws Exception
      */
-    protected function getMockNoResult(): Adapter
+    protected function getMockNoResult(mixed $current = null): Adapter
     {
         // mock the adapter, driver, and parts
         $mockConnection = $this->createMock(ConnectionInterface::class);
 
         $mockNoResult = $this->createMock(ResultInterface::class);
-        $mockNoResult->method('current')->willReturn(null);
+        $mockNoResult->method('current')->willReturn($current);
 
         $mockNoResultStatement = $this->createMock(StatementInterface::class);
         $mockNoResultStatement->method('execute')->willReturn($mockNoResult);

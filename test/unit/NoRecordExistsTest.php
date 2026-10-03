@@ -14,6 +14,7 @@ use PhpDb\Adapter\Driver\StatementInterface;
 use PhpDb\Adapter\ParameterContainer;
 use PhpDb\Adapter\Platform\Sql92;
 use PhpDb\Validator\NoRecordExists;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Exception;
@@ -22,6 +23,16 @@ use PHPUnit\Framework\TestCase;
 #[Group('unit')]
 final class NoRecordExistsTest extends TestCase
 {
+    /** @return array<string, array{mixed}> */
+    public static function noRowShapes(): array
+    {
+        return [
+            'null'        => [null],
+            'false (PDO)' => [false],
+            'empty array' => [[]],
+        ];
+    }
+
     /**
      * Test basic function of RecordExists (no exclusion)
      *
@@ -138,17 +149,18 @@ final class NoRecordExistsTest extends TestCase
     }
 
     /**
-     * PDO reports "no rows" as false rather than null; that must still count as no record.
+     * Every shape a driver uses for "no row" must count as no record.
      *
      * @throws Exception
      */
     #[Test]
-    public function noRowsReportedAsFalseFindsNoRecord(): void
+    #[DataProvider('noRowShapes')]
+    public function noRowShapeFindsNoRecord(mixed $current): void
     {
         $validator = new NoRecordExists([
             'table'   => 'users',
             'field'   => 'field1',
-            'adapter' => $this->getMockNoResult(false),
+            'adapter' => $this->getMockNoResult($current),
         ]);
         static::assertTrue($validator->isValid('nosuchvalue'));
     }

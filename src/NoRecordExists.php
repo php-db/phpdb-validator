@@ -19,7 +19,7 @@ final class NoRecordExists extends AbstractDbValidator
         $valid = true;
         $this->setValue($value);
 
-        if ($this->query($value) !== null) {
+        if ($this->query($value)) {
             $valid = false;
             $this->error(self::ERROR_RECORD_FOUND);
         }
