@@ -32,6 +32,7 @@ align-assignment-like = true
 sort-class-methods = true
 
 [linter]
+baseline = "lint-baseline.toml"
 minimum-fail-level = "Help"
 integrations = ["laminas", "phpunit"]
 
@@ -95,6 +96,7 @@ switch-continue-to-break = { enabled = true }
 invalid-open-tag = { level = "Help" }
 
 [analyzer]
+baseline = "analysis-baseline.toml"
 excludes = ["test"]
 plugins = ["psl", "psr-container"]
 find-unused-definitions = true
