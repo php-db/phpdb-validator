@@ -33,15 +33,14 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     /**
      * Error constants
      */
-    public const ERROR_NO_RECORD_FOUND = 'noRecordFound';
-    public const ERROR_RECORD_FOUND    = 'recordFound';
+    public const string ERROR_NO_RECORD_FOUND = 'noRecordFound';
+    public const string ERROR_RECORD_FOUND    = 'recordFound';
 
     /**
      * Message templates.
      *
      * @var array<string, string>
      */
-    // @mago-ignore analysis:incompatible-property-type
     public array $messageTemplates = [
         self::ERROR_NO_RECORD_FOUND => 'No record matching the input was found',
         self::ERROR_RECORD_FOUND    => 'A record matching the input was found',
@@ -165,7 +164,7 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
     /**
      * Run query and returns matches, or null if no matches are found.
      *
-     * @return mixed when matches are found.
+     * @return mixed when matches are found; null when there are none (PDO reports no rows as false).
      */
     protected function query(mixed $value): mixed
     {
@@ -180,6 +179,8 @@ abstract class AbstractDbValidator extends AbstractValidator implements AdapterA
             $parameters['where1'] = $value;
         }
 
-        return $statement->execute()?->current();
+        $row = $statement->execute()?->current();
+
+        return false === $row ? null : $row;
     }
 }

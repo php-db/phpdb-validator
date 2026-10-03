@@ -138,6 +138,22 @@ final class NoRecordExistsTest extends TestCase
     }
 
     /**
+     * PDO reports "no rows" as false rather than null; that must still count as no record.
+     *
+     * @throws Exception
+     */
+    #[Test]
+    public function noRowsReportedAsFalseFindsNoRecord(): void
+    {
+        $validator = new NoRecordExists([
+            'table'   => 'users',
+            'field'   => 'field1',
+            'adapter' => $this->getMockNoResult(false),
+        ]);
+        static::assertTrue($validator->isValid('nosuchvalue'));
+    }
+
+    /**
      * @throws Exception
      */
     #[Test]
@@ -241,13 +257,13 @@ final class NoRecordExistsTest extends TestCase
      *
      * @throws Exception
      */
-    protected function getMockNoResult(): Adapter
+    protected function getMockNoResult(mixed $current = null): Adapter
     {
         // mock the adapter, driver, and parts
         $mockConnection = $this->createMock(ConnectionInterface::class);
 
         $mockNoResult = $this->createMock(ResultInterface::class);
-        $mockNoResult->method('current')->willReturn(null);
+        $mockNoResult->method('current')->willReturn($current);
 
         $mockNoResultStatement = $this->createMock(StatementInterface::class);
         $mockNoResultStatement->method('execute')->willReturn($mockNoResult);
